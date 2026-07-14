@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>할 일 관리</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --panel: #ffffff;
+    --text: #1f2430;
+    --muted: #8a91a0;
+    --line: #e7e9ee;
+    --accent: #4f6bed;
+    --accent-weak: #eef1fe;
+    --danger: #e5534b;
+    --done: #b3b9c5;
+    --shadow: 0 10px 30px rgba(30, 40, 70, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161c;
+      --panel: #1c1f27;
+      --text: #e6e8ee;
+      --muted: #7d8493;
+      --line: #2a2e39;
+      --accent: #6a83f2;
+      --accent-weak: #23273a;
+      --danger: #f0736b;
+      --done: #5a606d;
+      --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px;
+  }
+  .app {
+    width: 100%;
+    max-width: 520px;
+  }
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -.5px; }
+  .date { color: var(--muted); font-size: 14px; }
+  .card {
+    background: var(--panel);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .add {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .add input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 16px;
+    padding: 8px 4px;
+  }
+  .add button {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 0 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: filter .15s;
+  }
+  .add button:hover { filter: brightness(1.07); }
+  .add button:active { transform: translateY(1px); }
+
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    animation: rise .2s ease;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(-4px); } }
+  li:last-child { border-bottom: none; }
+  .check {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: border-color .15s, background .15s;
+  }
+  .check:hover { border-color: var(--accent); }
+  li.done .check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 3;
+    fill: none; opacity: 0; transition: opacity .15s; }
+  li.done .check svg { opacity: 1; }
+  .title {
+    flex: 1;
+    font-size: 16px;
+    cursor: text;
+    word-break: break-word;
+  }
+  li.done .title { color: var(--done); text-decoration: line-through; }
+  .title input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: var(--accent-weak);
+    color: var(--text);
+    font-size: 16px;
+    padding: 4px 6px;
+    border-radius: 6px;
+  }
+  .del {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .15s, color .15s;
+    line-height: 1;
+  }
+  li:hover .del { opacity: 1; }
+  .del:hover { color: var(--danger); }
+
+  .empty {
+    padding: 48px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .filters { display: flex; gap: 4px; }
+  .filters button {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .filters button.active { background: var(--accent-weak); color: var(--accent); }
+  .clear {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .clear:hover { color: var(--danger); }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>할 일</h1>
+      <span class="date" id="date"></span>
+    </header>
+    <div class="card">
+      <form class="add" id="addForm">
+        <input id="addInput" placeholder="무엇을 해야 하나요?" autocomplete="off" />
+        <button type="submit">추가</button>
+      </form>
+      <ul id="list"></ul>
+      <div class="empty" id="empty">할 일이 없습니다. 첫 번째 항목을 추가해 보세요 ✨</div>
+      <footer>
+        <span id="count">0개 남음</span>
+        <div class="filters">
+          <button data-filter="all" class="active">전체</button>
+          <button data-filter="active">진행중</button>
+          <button data-filter="done">완료</button>
+        </div>
+        <button class="clear" id="clear">완료 삭제</button>
+      </footer>
+    </div>
+  </div>
+
+<script>
+  const KEY = 'todos.v1';
+  let todos = load();
+  let filter = 'all';
+
+  const $list = document.getElementById('list');
+  const $empty = document.getElementById('empty');
+  const $count = document.getElementById('count');
+  const $form = document.getElementById('addForm');
+  const $input = document.getElementById('addInput');
+
+  document.getElementById('date').textContent =
+    new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch { return []; }
+  }
+  function save() { localStorage.setItem(KEY, JSON.stringify(todos)); }
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  function add(text) {
+    text = text.trim();
+    if (!text) return;
+    todos.unshift({ id: uid(), text, done: false });
+    save(); render();
+  }
+  function toggle(id) {
+    const t = todos.find(t => t.id === id);
+    if (t) { t.done = !t.done; save(); render(); }
+  }
+  function remove(id) {
+    todos = todos.filter(t => t.id !== id);
+    save(); render();
+  }
+  function edit(id, text) {
+    const t = todos.find(t => t.id === id);
+    text = text.trim();
+    if (t) {
+      if (text) t.text = text; else todos = todos.filter(x => x.id !== id);
+      save(); render();
+    }
+  }
+  function clearDone() {
+    todos = todos.filter(t => !t.done);
+    save(); render();
+  }
+
+  function visible() {
+    if (filter === 'active') return todos.filter(t => !t.done);
+    if (filter === 'done') return todos.filter(t => t.done);
+    return todos;
+  }
+
+  function render() {
+    const items = visible();
+    $list.innerHTML = '';
+    $empty.style.display = items.length ? 'none' : 'block';
+
+    for (const t of items) {
+      const li = document.createElement('li');
+      li.className = t.done ? 'done' : '';
+
+      const check = document.createElement('div');
+      check.className = 'check';
+      check.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>';
+      check.onclick = () => toggle(t.id);
+
+      const title = document.createElement('div');
+      title.className = 'title';
+      title.textContent = t.text;
+      title.ondblclick = () => startEdit(li, title, t);
+
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.innerHTML = '&times;';
+      del.title = '삭제';
+      del.onclick = () => remove(t.id);
+
+      li.append(check, title, del);
+      $list.appendChild(li);
+    }
+
+    const left = todos.filter(t => !t.done).length;
+    $count.textContent = left + '개 남음';
+  }
+
+  function startEdit(li, title, t) {
+    const input = document.createElement('input');
+    input.value = t.text;
+    title.textContent = '';
+    title.appendChild(input);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+    const commit = () => edit(t.id, input.value);
+    input.onblur = commit;
+    input.onkeydown = e => {
+      if (e.key === 'Enter') input.blur();
+      if (e.key === 'Escape') { input.onblur = null; render(); }
+    };
+  }
+
+  $form.onsubmit = e => { e.preventDefault(); add($input.value); $input.value = ''; };
+
+  document.querySelectorAll('.filters button').forEach(btn => {
+    btn.onclick = () => {
+      filter = btn.dataset.filter;
+      document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    };
+  });
+
+  document.getElementById('clear').onclick = clearDone;
+
+  render();
+</script>
+</body>
+</html>
