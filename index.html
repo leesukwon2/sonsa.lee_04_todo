@@ -6,35 +6,35 @@
 <title>할 일 관리</title>
 <style>
   :root {
-    --bg: #f0eee6;
-    --panel: #faf9f5;
+    --bg: #f7f7f8;
+    --panel: #ffffff;
     --panel-solid: #ffffff;
-    --text: #1f1e1d;
-    --muted: #83827d;
-    --line: #e3e1d8;
-    --accent: #d97757;
-    --accent-hover: #c96442;
-    --accent-weak: #f5ebe4;
-    --danger: #bf4d43;
-    --done: #b8b6ac;
-    --seg-bg: #ebe9e0;
-    --shadow: 0 8px 30px rgba(60, 50, 40, .08);
+    --text: #0d0d0d;
+    --muted: #8e8ea0;
+    --line: #e5e5e5;
+    --accent: #10a37f;
+    --accent-hover: #0e8f6f;
+    --accent-weak: #e7f6f1;
+    --danger: #ef4146;
+    --done: #b4b4c0;
+    --seg-bg: #ececf1;
+    --shadow: 0 4px 20px rgba(0, 0, 0, .06);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #262624;
-      --panel: #30302e;
-      --panel-solid: #3a3a37;
-      --text: #f5f4ee;
-      --muted: #a3a299;
-      --line: #45443f;
-      --accent: #d97757;
-      --accent-hover: #e08a6e;
-      --accent-weak: #3d332c;
-      --danger: #e0796b;
-      --done: #6b6a63;
-      --seg-bg: #3a3a37;
-      --shadow: 0 8px 30px rgba(0, 0, 0, .3);
+      --bg: #202123;
+      --panel: #2a2b32;
+      --panel-solid: #343541;
+      --text: #ececf1;
+      --muted: #8e8ea0;
+      --line: #3e3f4b;
+      --accent: #19c37d;
+      --accent-hover: #1fd88c;
+      --accent-weak: #1a2f2a;
+      --danger: #f87171;
+      --done: #6e6f7b;
+      --seg-bg: #40414f;
+      --shadow: 0 4px 20px rgba(0, 0, 0, .4);
     }
   }
   * { box-sizing: border-box; }
@@ -62,18 +62,16 @@
     padding: 0 4px;
   }
   h1 {
-    font-size: 32px;
-    font-weight: 600;
+    font-size: 30px;
+    font-weight: 700;
     margin: 0;
-    letter-spacing: -.02em;
-    font-family: ui-serif, Georgia, "Times New Roman", "Apple SD Gothic Neo",
-      "Malgun Gothic", serif;
+    letter-spacing: -.025em;
   }
   .date { color: var(--muted); font-size: 15px; font-weight: 500; }
   .card {
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: var(--shadow);
     overflow: hidden;
   }
@@ -100,7 +98,7 @@
     font-size: 15px;
     font-weight: 600;
     padding: 0 20px;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: background .15s, transform .12s ease;
   }
@@ -119,10 +117,10 @@
   @keyframes rise { from { opacity: 0; transform: translateY(-4px); } }
   li:last-child { border-bottom: none; }
   .check {
-    width: 23px;
-    height: 23px;
+    width: 22px;
+    height: 22px;
     flex-shrink: 0;
-    border-radius: 7px;
+    border-radius: 50%;
     border: 1.8px solid var(--done);
     cursor: pointer;
     display: grid;
